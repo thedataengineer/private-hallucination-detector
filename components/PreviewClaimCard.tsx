@@ -1,7 +1,5 @@
 // PreviewClaimCard.tsx
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
-
 interface Claim {
   claim: string;
   assessment: string;
@@ -9,7 +7,6 @@ interface Claim {
   original_text: string;
   fixed_original_text: string;
   confidence_score: number;
-  url_sources?: string[];
 }
 
 interface PreviewClaimCardProps {
@@ -43,31 +40,9 @@ export const PreviewClaimCard: React.FC<PreviewClaimCardProps> = ({ claim, onAcc
 
       <p className="text-gray-700">{claim.summary}</p>
 
-      <div className="space-y-2 pt-1">
-        <div className="flex items-center gap-2 text-gray-700">
-          <ChevronRight size={20} />
-          <span className="font-medium">Sources</span>
-        </div>
-        
-        <ul className="space-y-2 pl-6">
-          {claim.url_sources && claim.url_sources.length > 0 ? (
-            claim.url_sources.map((source, idx) => (
-              <li key={idx}>
-                <a
-                  href={source}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 hover:underline text-sm break-all"
-                >
-                  {source}
-                </a>
-              </li>
-            ))
-          ) : (
-            <li className="text-gray-500 italic">No sources available</li>
-          )}
-        </ul>
-      </div>
+      <p className="text-sm text-gray-500 italic">
+        Offline reasoning only — double-check important facts with trusted references.
+      </p>
 
       {hasFix && (
         <div className="pt-5 space-y-2">

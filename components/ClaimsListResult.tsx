@@ -1,13 +1,10 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
-
 interface ClaimsListResult {
   claim: string;
   assessment: string;
   summary: string;
   fixed_original_text: string;
   confidence_score: number;
-  url_sources?: string[];
 }
 
 interface ClaimsListResultsProps {
@@ -50,30 +47,8 @@ const ClaimsListResults: React.FC<ClaimsListResultsProps> = ({ results }) => {
 
           {/* <p className="text-gray-700 mt-2">{result.fixed_original_text}</p> */}
           
-          <div className="mt-4">
-            <div className="flex items-center space-x-2 text-gray-700 mb-2">
-              <ChevronRight size={20} />
-              <span className="font-medium">Sources</span>
-            </div>
-            
-            <ul className="space-y-2 pl-6">
-              {result.url_sources && result.url_sources.length > 0 ? (
-                result.url_sources.map((source, idx) => (
-                  <li key={idx}>
-                    <a 
-                      href={source}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 hover:underline text-sm break-all"
-                    >
-                      {source}
-                    </a>
-                  </li>
-                ))
-              ) : (
-                <li className="text-gray-500 italic">No sources available</li>
-              )}
-            </ul>
+          <div className="mt-4 text-sm text-gray-500 italic">
+            Offline mode: external citations are unavailable, so treat this verdict as advisory.
           </div>
         </div>
       ))}

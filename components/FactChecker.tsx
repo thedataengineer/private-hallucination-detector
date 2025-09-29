@@ -1,11 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useState, FormEvent, useRef, useEffect } from "react";
 import ClaimsListResults from "./ClaimsListResult";
 import LoadingMessages from "./ui/LoadingMessages";
 import PreviewBox from "./PreviewBox";
-import { ChevronDown, ChevronRight, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import AnimatedGradientText from "./ui/animated-gradient-text";
 import ShareButtons from "./ui/ShareButtons";
 import { getAssetPath } from "@/lib/utils";
@@ -79,36 +78,14 @@ export default function FactChecker() {
     const data = await response.json();
     return Array.isArray(data.claims) ? data.claims : JSON.parse(data.claims);
   };
-  
-  // ExaSearch function
-  const exaSearch = async (claim: string) => {
-    console.log(`Claim recieved in exa search: ${claim}`);
-
-    const response = await fetch(getAssetPath('/api/exasearch'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ claim }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch verification for claim.');
-    }
-
-    const data = await response.json();
-    return data;
-  };
-
   // Verify claims function
-  const verifyClaim = async (claim: string, original_text: string, exasources: any) => {
+  const verifyClaim = async (claim: string, original_text: string) => {
     const response = await fetch(getAssetPath('/api/verifyclaims'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ claim, original_text, exasources }),
+      body: JSON.stringify({ claim, original_text }),
     });
 
     if (!response.ok) {
@@ -145,17 +122,9 @@ export default function FactChecker() {
       const finalResults = await Promise.all(
         claims.map(async ({ claim, original_text }: Claim) => {
           try {
-            const exaSources = await exaSearch(claim);
-            
-            if (!exaSources?.results?.length) {
-              return null;
-            }
-    
-            const sourceUrls = exaSources.results.map((result: { url: any; }) => result.url);
-            
-            const verifiedClaim = await verifyClaim(claim, original_text, exaSources.results);
-    
-            return { ...verifiedClaim, original_text, url_sources: sourceUrls };
+            const verifiedClaim = await verifyClaim(claim, original_text);
+
+            return { ...verifiedClaim, original_text };
           } catch (error) {
             console.error(`Failed to verify claim: ${claim}`, error);
             return null;
@@ -186,19 +155,12 @@ export default function FactChecker() {
 
         {/* Badge positioned at the top */}
       <div className="w-full flex justify-center pt-10 opacity-0 animate-fade-up [animation-delay:200ms]">
-        <Link href="https://exa.ai/" target="_blank">
-          <AnimatedGradientText>
-          <img 
-            src={getAssetPath('/exaicon.png')} 
-            alt="exa logo" 
-            className="w-5 h-5 inline-block mr-2" 
-          />
-            <span className="inline animate-gradient bg-gradient-to-r from-[#254bf1] via-purple-600 to-[#254bf1] bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent">
-              Built on Exa - Search Engine for AI
-            </span>
-            <ChevronRight className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
-          </AnimatedGradientText>
-        </Link>
+        <AnimatedGradientText>
+          <span className="mr-2">🤖</span>
+          <span className="inline animate-gradient bg-gradient-to-r from-[#254bf1] via-purple-600 to-[#254bf1] bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent">
+            Runs fully offline with your local Ollama model
+          </span>
+        </AnimatedGradientText>
       </div>
 
       <main className="flex flex-col items-center justify-center flex-grow w-full max-w-6xl md:max-w-4xl p-6">
@@ -209,7 +171,7 @@ export default function FactChecker() {
           </h1>
 
           <p className="text-gray-800 mb-12 opacity-0 animate-fade-up [animation-delay:600ms]">
-            Verify your content with real web data.
+            Inspect your content for likely hallucinations without needing an internet connection.
           </p>
         </div>
     
@@ -301,37 +263,7 @@ export default function FactChecker() {
       <footer className="w-full py-6 px-8 mb-6 mt-auto opacity-0 animate-fade-up [animation-delay:1400ms]">
         <div className="max-w-md mx-auto">
           <p className="text-md text-center text-gray-600">
-            <Link 
-              href="https://dashboard.exa.ai" 
-              target="_blank"
-              className="underline cursor-pointer hover:text-gray-800"
-            >
-              Try Exa API
-            </Link>
-            <span className="mx-3">|</span>
-            <Link 
-              href="https://github.com/exa-labs/exa-hallucination-detector" 
-              target="_blank"
-              className="underline cursor-pointer hover:text-gray-800"
-            >
-              Project Code
-            </Link>
-            <span className="mx-3">|</span>
-            <Link 
-              href="https://exa.ai/demos" 
-              target="_blank"
-              className="underline cursor-pointer hover:text-gray-800"
-            >
-              See More Demo Apps
-            </Link>
-            <span className="mx-3">|</span>
-            <Link 
-              href="https://docs.exa.ai/examples/demo-hallucination-detector" 
-              target="_blank"
-              className="underline cursor-pointer hover:text-gray-800"
-            >
-              Tutorial
-            </Link>
+            Built for local validation workflows — no external APIs required.
           </p>
         </div>
       </footer>

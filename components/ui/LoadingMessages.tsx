@@ -8,7 +8,7 @@ type LoadingMessagesProps = {
 const loadingMessages = [
   "🔍\u00A0\u00A0Analyzing Your Content...",
   "📝\u00A0\u00A0Extracting Key Claims...",
-  "📚\u00A0\u00A0Searching for Reliable Sources...",
+  "🧠\u00A0\u00A0Consulting Local Model Knowledge...",
   "🔍\u00A0\u00A0Verifying Each Claim for Accuracy...",
   "📊\u00A0\u00A0Generating Your Results...",
   "Almost there...\u00A0\u00A0🎉",

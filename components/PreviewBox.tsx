@@ -10,7 +10,6 @@ interface Claim {
   original_text: string;
   fixed_original_text: string;
   confidence_score: number;
-  url_sources?: string[];
 }
 
 interface PreviewBoxProps {

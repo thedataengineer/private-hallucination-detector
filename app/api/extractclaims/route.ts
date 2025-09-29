@@ -1,7 +1,7 @@
 // app/api/extractclaims/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { anthropic } from "@ai-sdk/anthropic";
-import { generateText } from 'ai';
+import { extractJsonSnippet, runLLMText } from "@/lib/llm";
+import { z } from "zod";
 
 // This function can run for a maximum of 60 seconds
 export const maxDuration = 60;
@@ -13,11 +13,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Content is required' }, { status: 400 });
     }
 
-    // Run the prompt to extract claims along with original text parts
-    const { text } = await generateText({
-      model: anthropic('claude-3-5-sonnet-20241022'),
-      prompt: 
-      `You are an expert at extracting claims from text.
+    const claimsSchema = z.array(z.object({
+      claim: z.string(),
+      original_text: z.string(),
+    }));
+
+    const prompt = `You are an expert at extracting claims from text.
       Your task is to identify and list all claims present, true or false, in the given text. Each claim should be a verifiable statement.
       
       If the input content is very lengthy, then pick the major claims.
@@ -42,12 +43,16 @@ export async function POST(req: NextRequest) {
         ...
       ]
 
-        Output the result as valid JSON, strictly adhering to the defined schema. Ensure there are no markdown codes or additional elements included in the output. Do not add anything else. Return only JSON.
-      `,
-    });
+      Output the result as valid JSON, strictly adhering to the defined schema. Ensure there are no markdown codes or additional elements included in the output. Do not add anything else. Return only JSON.
+      `;
 
-    return NextResponse.json({ claims: JSON.parse(text) });
+    const text = await runLLMText(prompt);
+    const normalizedJson = extractJsonSnippet(text);
+    const claims = claimsSchema.parse(JSON.parse(normalizedJson));
+
+    return NextResponse.json({ claims });
   } catch (error) {
-    return NextResponse.json({ error: `Failed to extract claims | ${error}` }, { status: 500 });
+    console.error('Extract claims API error:', error);
+    return NextResponse.json({ error: `Failed to extract claims | ${error instanceof Error ? error.message : String(error)}` }, { status: 500 });
   }
 }
